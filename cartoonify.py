@@ -62,7 +62,7 @@ def cartoonify(img_path):
 
     plt.show()
 
-def save(img, path):
+def save_img(img, path):
     ''' save the cartoon image into a file '''
 
     directory = os.path.dirname(path)
@@ -75,7 +75,21 @@ def save(img, path):
     msg = f"Cartoon image saved at {save_path}"
     tk.messagebox.showinfo(title='Information', message=msg)
 
-
-
 if __name__ == '__main__':
-    upload_img()
+    # create tkinter window
+    root = tk.Tk()
+    root.geometry('400x400')
+    root.title('Cartoonify an Image!')
+    root.configure(background='white')
+    label = tk.Label(root, background='#CDCDCD', font=('calibri', 20, 'bold'))
+
+    # upload image button
+    upload = tk.Button(root, text='Cartoonify an image', command=upload_img, padx=10, pady=5)
+    upload.configure(background='#364156', foreground='white', font=('calibri', 10, 'bold'))
+    upload.pack(side=tk.TOP, pady=50)
+
+    # save image button
+    save = tk.Button(root, text="Save cartoon image", command=lambda: save_img(), padx=30, pady=5)
+    save.configure(background='#364156', foreground='white', font=('calibri', 10, 'bold'))
+
+    root.mainloop()
