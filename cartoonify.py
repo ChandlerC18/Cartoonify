@@ -1,28 +1,33 @@
 #---------Imports
 import cv2 #for image processing
 import easygui #to open the filebox
-import numpy as np #to store image
-import imageio #to read image stored at particular path
 import sys
 import matplotlib.pyplot as plt
 import os
 import tkinter as tk
-# from tkinter import filedialog
-# from tkinter import *
-from PIL import ImageTk, Image
+from tkinter import messagebox
 #---------End of imports
 
+### CLASSES ###
+class Image:
+    original_img_path = ''
+    cartoon_path = ''
+    cartoon_image = None
+
 ### FUNCTIONS ###
-def upload_img():
-    ''' creates a dialog box to select image and calls the cartoonify function '''
+def upload_img(img_object):
+    ''' creates a dialog box to select image and calls the cartoonify function'''
 
     img_path = easygui.fileopenbox()
-    cartoonify(img_path)
+    img_object.original_img_path = img_path
 
-def cartoonify(img_path):
-    ''' turns the image specified at img_path into a cartoon '''
+    cartoonify(img_object)
 
-    img = cv2.imread(img_path) # read image
+def cartoonify(img_object):
+    ''' turns the image specified at img_path into a cartoon;
+        returns the cartoon image '''
+
+    img = cv2.imread(img_object.original_img_path) # read image
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # convert colors to RGB scale
 
     if img is None:
@@ -61,21 +66,28 @@ def cartoonify(img_path):
         ax.imshow(images[i], cmap='gray')
 
     plt.show()
+    img_object.cartoon_image = resized_cartoon
 
-def save_img(img, path):
+def save_img(img_object):
     ''' save the cartoon image into a file '''
 
-    directory = os.path.dirname(path)
-    filename = os.path.basename(path)
-    extension = ps.path.splitext(path)[1]
-    save_path = os.path.join(directory, f'cartoon_{filename}{extension}')
+    if img_object.cartoon_image is not None:
+        directory = os.path.dirname(img_object.original_img_path)
+        filename = os.path.basename(img_object.original_img_path)
+        save_path = os.path.join(directory, f'cartoon_{filename}')
+        img_object.cartoon_path = save_path # save new path to image objet
 
-    cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR)) # save img to file
+        cv2.imwrite(save_path, cv2.cvtColor(img_object.cartoon_image, cv2.COLOR_RGB2BGR)) # save img to file
 
-    msg = f"Cartoon image saved at {save_path}"
-    tk.messagebox.showinfo(title='Information', message=msg)
+        msg = f"Cartoon image saved at {save_path}"
+        tk.messagebox.showinfo(title='Information', message=msg)
+    else:
+        tk.messagebox.showinfo(title='Information', message="No image uploaded")
 
+### MAIN FLOW ###
 if __name__ == '__main__':
+    img = Image() # create new image object
+
     # create tkinter window
     root = tk.Tk()
     root.geometry('400x400')
@@ -84,12 +96,14 @@ if __name__ == '__main__':
     label = tk.Label(root, background='#CDCDCD', font=('calibri', 20, 'bold'))
 
     # upload image button
-    upload = tk.Button(root, text='Cartoonify an image', command=upload_img, padx=10, pady=5)
+    upload = tk.Button(root, text='Cartoonify an image', command=lambda: upload_img(img), padx=10, pady=5)
     upload.configure(background='#364156', foreground='white', font=('calibri', 10, 'bold'))
     upload.pack(side=tk.TOP, pady=50)
 
     # save image button
-    save = tk.Button(root, text="Save cartoon image", command=lambda: save_img(), padx=30, pady=5)
+    save = tk.Button(root, text="Save cartoon image", command=lambda: save_img(img), padx=30, pady=5)
     save.configure(background='#364156', foreground='white', font=('calibri', 10, 'bold'))
+    save.pack(side=tk.BOTTOM, pady=50)
 
+    # run tkinter GUI
     root.mainloop()
