@@ -56,10 +56,26 @@ def cartoonify(img_path):
 
     fig, axes = plt.subplots(3, 2, figsize=(8, 8), subplot_kw={'xticks':[], 'yticks':[]}, gridspec_kw=dict(hspace=0.1, wspace=0.1))
 
+    # plot each transformation
     for i, ax in enumerate(axes.flat):
         ax.imshow(images[i], cmap='gray')
 
     plt.show()
+
+def save(img, path):
+    ''' save the cartoon image into a file '''
+
+    directory = os.path.dirname(path)
+    filename = os.path.basename(path)
+    extension = ps.path.splitext(path)[1]
+    save_path = os.path.join(directory, f'cartoon_{filename}{extension}')
+
+    cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR)) # save img to file
+
+    msg = f"Cartoon image saved at {save_path}"
+    tk.messagebox.showinfo(title='Information', message=msg)
+
+
 
 if __name__ == '__main__':
     upload_img()
